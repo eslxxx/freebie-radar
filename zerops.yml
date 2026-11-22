@@ -1,0 +1,33 @@
+zerops:
+  - setup: nodejs
+    build:
+      base: alpine/nodejs@24
+      prepareCommands:
+        - npm install -g pnpm@10
+      buildCommands:
+        - pnpm install --frozen-lockfile
+        - pnpm build
+      deployFiles:
+        - dist
+        - src/server
+        - src/shared
+        - package.json
+        - tsconfig.json
+        - node_modules
+      cache:
+        - node_modules
+        - pnpm-lock.yaml
+
+    run:
+      base: alpine/nodejs@24
+      ports:
+        - port: 8788
+          httpSupport: true
+      envVariables:
+        HOST: 0.0.0.0
+        PORT: "8788"
+        DATABASE_PATH: /mnt/vol/radar.db
+        NODE_ENV: production
+      volume:
+        hostname: vol
+      start: npm start
